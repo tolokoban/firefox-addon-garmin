@@ -1,0 +1,20 @@
+{
+    "manifest_version": 3,
+    "name": "Garmin Trail-Passion Bridge",
+    "version": "1.0.0",
+    "description": "Bridge Garmin Connect with Trail-Passion",
+    "content_scripts": [
+        {
+            "matches": [
+                "https://connect.garmin.com/app/activities"
+            ],
+            "js": [
+                "content.js"
+            ],
+            "css": [
+                "content.css"
+            ]
+        }
+    ],
+    "permissions": []
+}

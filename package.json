@@ -1,0 +1,22 @@
+{
+    "name": "firefox-addon-garmin",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "start": "rspack build --watch",
+        "build": "rspack build --mode production",
+        "package": "npm run build && cd dist/firefox && zip -r ../../garmin-trail-passion.xpi . && cd ../chrome && zip -r ../../garmin-trail-passion.crx .",
+        "clean": "rm -rf dist"
+    },
+    "dependencies": {
+        "react": "^19.2.5",
+        "react-dom": "^19.2.5"
+    },
+    "devDependencies": {
+        "@rspack/cli": "^2.0.1",
+        "@rspack/core": "^2.0.1",
+        "@types/react": "^19.2.14",
+        "@types/react-dom": "^19.2.3",
+        "typescript": "^5.9.3"
+    }
+}
