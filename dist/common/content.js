@@ -1,7 +1,393 @@
 (() => {
-var __webpack_modules__ = ({
-"./node_modules/react-dom/cjs/react-dom-client.development.js"(__unused_rspack_module, exports, __webpack_require__) {
 "use strict";
+var __webpack_modules__ = ({
+"./node_modules/@tolokoban/type-guards/dist/index.js"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  assertArray: () => (assertArray),
+  assertArrayBuffer: () => (assertArrayBuffer),
+  assertBoolean: () => (assertBoolean),
+  assertNumber: () => (assertNumber),
+  assertObject: () => (assertObject),
+  assertOptionalArrayBuffer: () => (assertOptionalArrayBuffer),
+  assertOptionalString: () => (assertOptionalString),
+  assertString: () => (assertString),
+  assertType: () => (assertType),
+  assertType$: () => (assertType$),
+  ensureBoolean: () => (ensureBoolean),
+  ensureNumber: () => (ensureNumber),
+  ensureString: () => (ensureString),
+  ensureType: () => (ensureType),
+  isArrayBuffer: () => (isArrayBuffer),
+  isArrayBufferView: () => (isArrayBufferView),
+  isBoolean: () => (isBoolean),
+  isBufferSource: () => (isBufferSource),
+  isFunction: () => (isFunction),
+  isNull: () => (isNull),
+  isNumber: () => (isNumber),
+  isObject: () => (isObject),
+  isString: () => (isString),
+  isStringArray: () => (isStringArray),
+  isType: () => (isType),
+  isType$: () => (isType$),
+  isUndefined: () => (isUndefined)
+});
+function isObject(data) {
+    if (!data)
+        return false;
+    if (Array.isArray(data))
+        return false;
+    return typeof data === "object";
+}
+function isString(data) {
+    return typeof data === "string";
+}
+function isNumber(data) {
+    return typeof data === "number";
+}
+function isNull(data) {
+    return typeof data === null;
+}
+function isFunction(data) {
+    return typeof data === "function";
+}
+function isUndefined(data) {
+    return typeof data === "undefined";
+}
+function isBoolean(data) {
+    return typeof data === "boolean";
+}
+function isArrayBuffer(data) {
+    if (!data)
+        return false;
+    return data instanceof ArrayBuffer;
+}
+function isArrayBufferView(data) {
+    if (!data)
+        return false;
+    return ArrayBuffer.isView(data);
+}
+function isBufferSource(data) {
+    return isArrayBuffer(data) || isArrayBufferView(data);
+}
+function isStringArray(data) {
+    if (!Array.isArray(data))
+        return false;
+    // eslint-disable-next-line no-restricted-syntax
+    for (const item of data) {
+        if (!isString(item))
+            return false;
+    }
+    return true;
+}
+function assertNumber(data, name = "data") {
+    if (!isNumber(data)) {
+        throw Error(`${name} was expected to be a number but we got ${typeof data}!`);
+    }
+}
+function assertString(data, name = "data") {
+    if (!isString(data)) {
+        throw Error(`${name} was expected to be a string but we got ${typeof data}!`);
+    }
+}
+function assertOptionalString(data, name = "data") {
+    if (data && !isString(data)) {
+        throw Error(`${name} was expected to be a string but we got ${typeof data}!`);
+    }
+}
+function assertBoolean(data, name = "data") {
+    if (!isBoolean(data)) {
+        throw Error(`${name} was expected to be a boolean but we got ${typeof data}!`);
+    }
+}
+function assertObject(data, name = "data") {
+    if (!isObject(data)) {
+        throw Error(`${name} was expected to be an object but we got ${typeof data}!`);
+    }
+}
+function assertArray(data, name = "data") {
+    if (!Array.isArray(data)) {
+        throw Error(`${name} was expected to be an Array but we got ${typeof data}!`);
+    }
+}
+function assertArrayBuffer(data, name = "data") {
+    if (!isArrayBuffer(data)) {
+        throw Error(`${name} was expected to be an ArrayBuffer but we got ${typeof data}!`);
+    }
+}
+function assertOptionalArrayBuffer(data, name = "data") {
+    if (data && !isArrayBuffer(data)) {
+        throw Error(`${name} was expected to be an ArrayBuffer but we got ${typeof data}!`);
+    }
+}
+function isType(data, type, logErrors = null) {
+    return isType$(data, type, logErrors);
+}
+function isType$(data, type, logErrors = null) {
+    try {
+        assertType$(data, type);
+        return true;
+    }
+    catch (ex) {
+        if (logErrors) {
+            console.error("[Invalid type]", logErrors);
+            console.error(data);
+            console.debug(ex);
+        }
+        return false;
+    }
+}
+function assertType(data, type, prefix = "data") {
+    return assertType$(data, type, prefix);
+}
+function assertType$(data, type, prefix = "data") {
+    if (typeof type === "function")
+        return assertType$(data, type(), prefix);
+    if (type === "unknown")
+        return;
+    if (type === "null") {
+        if (data !== null) {
+            console.log("🚀 [index] data = ", data, typeof data); // @FIXME: Remove this line written on 2024-10-18 at 13:22
+            throw Error(`Expected ${prefix} to be a null and not a ${prettyTypeof(data)}!`);
+        }
+        return;
+    }
+    if (typeof type === "string") {
+        if (typeof data !== type) {
+            throw Error(`Expected ${prefix} to be a ${type} and not a ${prettyTypeof(data)}!`);
+        }
+        return;
+    }
+    if (Array.isArray(type)) {
+        const [kind] = type;
+        switch (kind) {
+            case "array":
+                assertTypeArray(data, prefix, type);
+                return;
+            case "map":
+                assertTypeMap(data, prefix, type);
+                return;
+            case "?":
+                assertTypeOptional(data, prefix, type);
+                return;
+            case "|":
+                assertTypeAlternative(data, prefix, type);
+                return;
+            case "tuple":
+                assertTypeTuple(data, prefix, type);
+                return;
+            case "tuple...":
+                assertTypeTupleWithRest(data, prefix, type);
+                return;
+            case "partial":
+                assertTypePartial(data, prefix, type);
+                return;
+            case "literal":
+                assertTypeLiteral(data, prefix, type);
+                return;
+            case "custom":
+                assertTypeCustom(data, prefix, type);
+                return;
+            default:
+                throw Error(`Don't know how to create a type guard for this kind of type: ${JSON.stringify(type)}`);
+        }
+    }
+    if (typeof data !== "object")
+        throw Error(`Expected ${prefix} to be an object and not a ${prettyTypeof(data)}!`);
+    const obj = data;
+    for (const name of Object.keys(type)) {
+        if (typeof name !== "string")
+            continue;
+        assertType$(obj[name], type[name], `${prefix}.${name}`);
+    }
+}
+function assertTypeTuple(data, prefix, [, ...types]) {
+    assertArray(data);
+    if (types.length > data.length) {
+        throw Error(`Expected ${prefix}'s length to be at least ${types.length} and not ${data.length}!`);
+    }
+    for (let i = 0; i < types.length; i++) {
+        const type = types[i];
+        assertType$(data[i], type, `${prefix}[${i}]`);
+    }
+}
+function assertTypeTupleWithRest(data, prefix, [, ...types]) {
+    const last = types.length - 1;
+    const fixTypes = types.slice(0, last);
+    assertTypeTuple(data, prefix, ["tuple", ...fixTypes]);
+    const rest = types[last];
+    for (let i = last; i < data.length; i++) {
+        assertType$(data[i], rest, `${prefix}[${i}]`);
+    }
+}
+function assertTypePartial(data, prefix, [, type]) {
+    assertObject(data, prefix);
+    for (const name of Object.keys(type)) {
+        if (typeof name !== "string")
+            continue;
+        const attrib = data[name];
+        if (typeof attrib !== "undefined") {
+            assertType$(attrib, type[name], `${prefix}.${name}`);
+        }
+    }
+}
+function assertTypeArray(data, prefix, type) {
+    if (!Array.isArray(data))
+        throw Error(`Expected ${prefix} to be an array and not a ${prettyTypeof(data)}!`);
+    const [, subType, constraints] = type;
+    if (constraints) {
+        const len = data.length;
+        if (isNumber(constraints)) {
+            if (len !== constraints) {
+                throw Error(`Expected ${prefix}'s length to be ${constraints} and not ${len}!`);
+            }
+        }
+        else {
+            const { min, max } = constraints;
+            if (isNumber(min) && len < min) {
+                throw Error(`Expected ${prefix}'s MIN length to be ${min} and not ${len}!`);
+            }
+            if (isNumber(max) && len > max) {
+                throw Error(`Expected ${prefix}'s MAX length to be ${max} and not ${len}!`);
+            }
+        }
+    }
+    for (let i = 0; i < data.length; i += 1) {
+        assertType$(data[i], subType, `${prefix}[${i}]`);
+    }
+}
+function assertTypeMap(data, prefix, type) {
+    if (!isObject(data))
+        throw Error(`Expected ${prefix} to be an object and not a ${prettyTypeof(data)}!`);
+    const [, subType] = type;
+    for (const key of Object.keys(data)) {
+        if (typeof key === "string") {
+            assertType$(data[key], subType, `${prefix}[${key}]`);
+        }
+    }
+}
+function assertTypeOptional(data, prefix, type) {
+    if (typeof data === "undefined")
+        return;
+    const [, optionalType] = type;
+    assertType$(data, optionalType, prefix);
+}
+function assertTypeAlternative(data, prefix, type) {
+    const [, ...altTypes] = type;
+    if (altTypes.length === 0)
+        throw Error(`No type has been defined for this alternative: ${JSON.stringify(type)}!`);
+    const exceptions = [];
+    for (const altType of altTypes) {
+        try {
+            assertType$(data, altType, prefix);
+            return;
+        }
+        catch (ex) {
+            if (ex instanceof Error)
+                exceptions.push(ex);
+        }
+    }
+    throw new Error(`All alternatives failed!${exceptions.map(ex => `\n${ex.message}`)}`);
+}
+function assertTypeLiteral(data, prefix, type) {
+    const [, ...literals] = type;
+    for (const literal of literals) {
+        if (data === literal)
+            return;
+    }
+    throw Error(`Expected ${prefix} to be a literal (${literals
+        .map(item => `"${item}"`)
+        .join(" | ")}) and not a ${prettyTypeof(data)}!`);
+}
+function assertTypeCustom(data, prefix, [, typeGuard]) {
+    // Custom type guard.
+    if (!typeGuard(data)) {
+        throw Error(`Expected ${typeGuard.name}(${prefix}) to return true!`);
+    }
+    return;
+}
+/**
+ * Basically, this function checks a `data` against a `type` and returns a `defaultValue`
+ * if `data` is not of the expected type.
+ *
+ * But if the `defaultValue` is a function returning the expected `type`, then `ensureType`
+ * can be use to update old data that you have retrieved from local storage, for example.
+ *
+ * @example
+ * ```
+ * interface Complex { r: number, i: number }
+ * const complex = ensureType<Complex>(data, {r: "number", i: "number"}, { r: 1, i: 0 })
+ * ```
+ *
+ * @example
+ * ```
+ * interpace PersonVersion1 {
+ *   name: string
+ *   female: boolean
+ * }
+ * interpace PersonVersion2 {
+ *   name: string
+ *   gender: "male" | "female" | "nonbinary" | "unknown"
+ * }
+ *
+ * const data = JSON.parse(LocalStorate.getItem("person") ?? "null")
+ * const TypePersonVersion1 = {
+ *   name: "string",
+ *   female: "boolean"
+ * }
+ * const TypePersonVersion2 = {
+ *   name: "string",
+ *   gender: ["literal", "male", "female", "nonbinary", "unknown"]
+ * }
+ * const person = ensureType<PersonVersion2>(
+ *   data,
+ *   TypePersonVersion2,
+ *   (value: unknown) => {
+ *     if (isType<PersonVersion2>(value, TypePersonVersion2)) {
+ *       return value
+ *     }
+ *     if (isType<PersonVersion1>(value, TypePersonVersion1)) {
+ *       return {
+ *         name: value.name,
+ *         gender: value.female === true ? "female" : "unknown"
+ *       }
+ *     }
+ *     return { name: "Anonymous", gender: "unknown" }
+ *   }
+ * )
+ * ```
+ *
+ * @param data Value with unknown type.
+ * @param type The type to check against.
+ * @param defaultValue If the type doesn't check, we can return `defaultValue`, or call it if this is a function.
+ * @returns A value that is of the expected type.
+ */
+function ensureType(data, type, defaultValue) {
+    if (isType$(data, type))
+        return data;
+    return isType$(defaultValue, type) ? defaultValue : defaultValue(data);
+}
+function ensureBoolean(data, defaultValue) {
+    return ensureType(data, "boolean", defaultValue);
+}
+function ensureNumber(data, defaultValue) {
+    return ensureType(data, "number", defaultValue);
+}
+function ensureString(data, defaultValue) {
+    return ensureType(data, "string", defaultValue);
+}
+function prettyTypeof(data) {
+    var _a;
+    if (data === null)
+        return "null";
+    if (typeof data === "function")
+        return `function ${(_a = data.name) !== null && _a !== void 0 ? _a : ""}()`;
+    return typeof data;
+}
+//# sourceMappingURL=index.js.map
+
+},
+"./node_modules/react-dom/cjs/react-dom-client.development.js"(__unused_rspack_module, exports, __webpack_require__) {
 /**
  * @license React
  * react-dom-client.development.js
@@ -28126,7 +28512,6 @@ var __webpack_modules__ = ({
 
 },
 "./node_modules/react-dom/cjs/react-dom.development.js"(__unused_rspack_module, exports, __webpack_require__) {
-"use strict";
 /**
  * @license React
  * react-dom.development.js
@@ -28555,7 +28940,6 @@ var __webpack_modules__ = ({
 
 },
 "./node_modules/react-dom/client.js"(module, __unused_rspack_exports, __webpack_require__) {
-"use strict";
 
 
 function checkDCE() {
@@ -28587,7 +28971,6 @@ if (false) {} else {
 
 },
 "./node_modules/react-dom/index.js"(module, __unused_rspack_exports, __webpack_require__) {
-"use strict";
 
 
 function checkDCE() {
@@ -28619,7 +29002,6 @@ if (false) {} else {
 
 },
 "./node_modules/react/cjs/react-jsx-dev-runtime.development.js"(__unused_rspack_module, exports, __webpack_require__) {
-"use strict";
 /**
  * @license React
  * react-jsx-dev-runtime.development.js
@@ -28962,7 +29344,6 @@ if (false) {} else {
 
 },
 "./node_modules/react/cjs/react.development.js"(module, exports, __webpack_require__) {
-"use strict";
 /* module decorator */ module = __webpack_require__.nmd(module);
 /**
  * @license React
@@ -30252,7 +30633,6 @@ if (false) {} else {
 
 },
 "./node_modules/react/index.js"(module, __unused_rspack_exports, __webpack_require__) {
-"use strict";
 
 
 if (false) {} else {
@@ -30262,7 +30642,6 @@ if (false) {} else {
 
 },
 "./node_modules/react/jsx-dev-runtime.js"(module, __unused_rspack_exports, __webpack_require__) {
-"use strict";
 
 
 if (false) {} else {
@@ -30272,7 +30651,6 @@ if (false) {} else {
 
 },
 "./node_modules/scheduler/cjs/scheduler.development.js"(__unused_rspack_module, exports) {
-"use strict";
 /**
  * @license React
  * scheduler.development.js
@@ -30641,7 +31019,6 @@ if (false) {} else {
 
 },
 "./node_modules/scheduler/index.js"(module, __unused_rspack_exports, __webpack_require__) {
-"use strict";
 
 
 if (false) {} else {
@@ -30651,14 +31028,25 @@ if (false) {} else {
 
 },
 "./src/components/add-on/add-on.tsx"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, {
   AddOn: () => (AddOn)
 });
 /* import */ var react_jsx_dev_runtime__rspack_import_0 = __webpack_require__("./node_modules/react/jsx-dev-runtime.js");
-/* import */ var _services_garmin__rspack_import_1 = __webpack_require__("./src/services/garmin.ts");
-/* import */ var _add_on_module_css__rspack_import_2 = __webpack_require__("./src/components/add-on/add-on.module.css");
+/* import */ var react__rspack_import_1 = __webpack_require__("./node_modules/react/index.js");
+/* import */ var react__rspack_import_1_default = /*#__PURE__*/__webpack_require__.n(react__rspack_import_1);
+/* import */ var _services_garmin__rspack_import_2 = __webpack_require__("./src/services/garmin.ts");
+/* import */ var _dialog_trail_passion__rspack_import_3 = __webpack_require__("./src/components/dialog-trail-passion/index.ts");
+/* import */ var _logo__rspack_import_4 = __webpack_require__("./src/components/logo/index.ts");
+/* import */ var _add_on_module_css__rspack_import_5 = __webpack_require__("./src/components/add-on/add-on.module.css");
+function _array_like_to_array(arr, len) {
+    if (len == null || len > arr.length) len = arr.length;
+    for(var i = 0, arr2 = new Array(len); i < len; i++)arr2[i] = arr[i];
+    return arr2;
+}
+function _array_with_holes(arr) {
+    if (Array.isArray(arr)) return arr;
+}
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -30687,6 +31075,44 @@ function _async_to_generator(fn) {
             _next(undefined);
         });
     };
+}
+function _iterable_to_array_limit(arr, i) {
+    var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"];
+    if (_i == null) return;
+    var _arr = [];
+    var _n = true;
+    var _d = false;
+    var _s, _e;
+    try {
+        for(_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true){
+            _arr.push(_s.value);
+            if (i && _arr.length === i) break;
+        }
+    } catch (err) {
+        _d = true;
+        _e = err;
+    } finally{
+        try {
+            if (!_n && _i["return"] != null) _i["return"]();
+        } finally{
+            if (_d) throw _e;
+        }
+    }
+    return _arr;
+}
+function _non_iterable_rest() {
+    throw new TypeError("Invalid attempt to destructure non-iterable instance.\\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function _sliced_to_array(arr, i) {
+    return _array_with_holes(arr) || _iterable_to_array_limit(arr, i) || _unsupported_iterable_to_array(arr, i) || _non_iterable_rest();
+}
+function _unsupported_iterable_to_array(o, minLen) {
+    if (!o) return;
+    if (typeof o === "string") return _array_like_to_array(o, minLen);
+    var n = Object.prototype.toString.call(o).slice(8, -1);
+    if (n === "Object" && o.constructor) n = o.constructor.name;
+    if (n === "Map" || n === "Set") return Array.from(n);
+    if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _array_like_to_array(o, minLen);
 }
 function _ts_generator(thisArg, body) {
     var f, y, t, _ = {
@@ -30790,16 +31216,21 @@ function _ts_generator(thisArg, body) {
 
 
 
+
+
+
 function AddOn() {
+    var _React_useState = _sliced_to_array(react__rspack_import_1_default().useState(false), 2), open = _React_useState[0], setOpen = _React_useState[1];
     var handleClick = function handleClick() {
         return _async_to_generator(function() {
             var activities;
             return _ts_generator(this, function(_state) {
                 switch(_state.label){
                     case 0:
+                        setOpen(true);
                         return [
                             4,
-                            _services_garmin__rspack_import_1.ServiceGarmin.getActivities()
+                            _services_garmin__rspack_import_2.ServiceGarmin.getActivities()
                         ];
                     case 1:
                         activities = _state.sent();
@@ -30811,61 +31242,54 @@ function AddOn() {
             });
         })();
     };
-    return /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("div", {
-        className: _add_on_module_css__rspack_import_2.addOn,
-        children: /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("button", {
-            type: "button",
-            onClick: handleClick,
-            children: [
-                /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("svg", {
-                    viewBox: "0 0 24 24",
-                    preserveAspectRatio: "xMidYMid meet",
-                    fill: "currentColor",
+    return /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)(react_jsx_dev_runtime__rspack_import_0.Fragment, {
+        children: [
+            /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("div", {
+                className: _add_on_module_css__rspack_import_5.addOn,
+                children: /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("button", {
+                    type: "button",
+                    onClick: handleClick,
                     children: [
-                        /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("title", {
+                        /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)(_logo__rspack_import_4["default"], {}, void 0, false, {
+                            fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/add-on/add-on.tsx",
+                            lineNumber: 20,
+                            columnNumber: 6
+                        }, this),
+                        /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("div", {
                             children: "Trail-Passion"
                         }, void 0, false, {
                             fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/add-on/add-on.tsx",
-                            lineNumber: 18,
-                            columnNumber: 6
-                        }, this),
-                        /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("path", {
-                            d: "M12,8A1,1,0,0,1,13,9A1,1,0,0,1,12,10A1,1,0,0,1,11,9A1,1,0,0,1,12,8M21,11C21,16.6,17.2,21.7,12,23C6.8,21.7,3,16.6,3,11V5L12,1L21,5V11M12,6A3,3,0,0,0,9,9C9,10.3,9.8,11.4,11,11.8V18H13V16H15V14H13V11.8C14.2,11.4,15,10.3,15,9A3,3,0,0,0,12,6Z"
-                        }, void 0, false, {
-                            fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/add-on/add-on.tsx",
-                            lineNumber: 19,
+                            lineNumber: 21,
                             columnNumber: 6
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/add-on/add-on.tsx",
-                    lineNumber: 13,
-                    columnNumber: 5
-                }, this),
-                /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("div", {
-                    children: "Trail-Passion"
-                }, void 0, false, {
-                    fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/add-on/add-on.tsx",
-                    lineNumber: 21,
+                    lineNumber: 19,
                     columnNumber: 5
                 }, this)
-            ]
-        }, void 0, true, {
-            fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/add-on/add-on.tsx",
-            lineNumber: 12,
-            columnNumber: 4
-        }, this)
-    }, void 0, false, {
-        fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/add-on/add-on.tsx",
-        lineNumber: 11,
-        columnNumber: 3
-    }, this);
+            }, void 0, false, {
+                fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/add-on/add-on.tsx",
+                lineNumber: 18,
+                columnNumber: 4
+            }, this),
+            open && /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)(_dialog_trail_passion__rspack_import_3["default"], {
+                open: open,
+                onClose: function onClose() {
+                    return setOpen(false);
+                }
+            }, void 0, false, {
+                fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/add-on/add-on.tsx",
+                lineNumber: 25,
+                columnNumber: 5
+            }, this)
+        ]
+    }, void 0, true);
 }
 
 
 },
 "./src/components/add-on/index.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, {
   AddOn: () => (/* reexport safe */ _add_on__rspack_import_0.AddOn)
@@ -30875,12 +31299,205 @@ __webpack_require__.d(__webpack_exports__, {
 
 
 },
-"./src/dom.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
-"use strict";
+"./src/components/dialog-trail-passion/dialog-trail-passion.tsx"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
 __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, {
+  "default": () => (DialogTrailPassion)
+});
+/* import */ var react_jsx_dev_runtime__rspack_import_0 = __webpack_require__("./node_modules/react/jsx-dev-runtime.js");
+/* import */ var react__rspack_import_1 = __webpack_require__("./node_modules/react/index.js");
+/* import */ var react__rspack_import_1_default = /*#__PURE__*/__webpack_require__.n(react__rspack_import_1);
+/* import */ var _util_utils__rspack_import_2 = __webpack_require__("./src/util/utils.ts");
+/* import */ var _logo__rspack_import_3 = __webpack_require__("./src/components/logo/index.ts");
+/* import */ var _dialog_trail_passion_module_css__rspack_import_4 = __webpack_require__("./src/components/dialog-trail-passion/dialog-trail-passion.module.css");
+
+
+
+
+
+function DialogTrailPassion(param) {
+    var className = param.className, open = param.open, onClose = param.onClose;
+    return /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("dialog", {
+        className: (0,_util_utils__rspack_import_2.classNames)(className, _dialog_trail_passion_module_css__rspack_import_4.dialogTrailPassion),
+        open: open,
+        closedby: "any",
+        onClose: onClose,
+        id: "trail-passion-dialog",
+        children: /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("div", {
+            children: [
+                /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("header", {
+                    children: [
+                        /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)(_logo__rspack_import_3["default"], {}, void 0, false, {
+                            fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/dialog-trail-passion/dialog-trail-passion.tsx",
+                            lineNumber: 28,
+                            columnNumber: 6
+                        }, this),
+                        /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("div", {
+                            children: "Trail-Passion bridge"
+                        }, void 0, false, {
+                            fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/dialog-trail-passion/dialog-trail-passion.tsx",
+                            lineNumber: 29,
+                            columnNumber: 6
+                        }, this),
+                        /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("button", {
+                            type: "button",
+                            onClick: onClose,
+                            children: "✕"
+                        }, void 0, false, {
+                            fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/dialog-trail-passion/dialog-trail-passion.tsx",
+                            lineNumber: 30,
+                            columnNumber: 6
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/dialog-trail-passion/dialog-trail-passion.tsx",
+                    lineNumber: 27,
+                    columnNumber: 5
+                }, this),
+                /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("main", {
+                    children: "Login to do something useful..."
+                }, void 0, false, {
+                    fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/dialog-trail-passion/dialog-trail-passion.tsx",
+                    lineNumber: 34,
+                    columnNumber: 5
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/dialog-trail-passion/dialog-trail-passion.tsx",
+            lineNumber: 26,
+            columnNumber: 4
+        }, this)
+    }, void 0, false, {
+        fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/dialog-trail-passion/dialog-trail-passion.tsx",
+        lineNumber: 19,
+        columnNumber: 3
+    }, this);
+}
+
+
+},
+"./src/components/dialog-trail-passion/index.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  "default": () => (/* reexport safe */ _dialog_trail_passion__rspack_import_0["default"])
+});
+/* import */ var _dialog_trail_passion__rspack_import_0 = __webpack_require__("./src/components/dialog-trail-passion/dialog-trail-passion.tsx");
+
+
+
+},
+"./src/components/logo/index.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  "default": () => (/* reexport safe */ _logo__rspack_import_0["default"])
+});
+/* import */ var _logo__rspack_import_0 = __webpack_require__("./src/components/logo/logo.tsx");
+
+
+
+},
+"./src/components/logo/logo.tsx"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  "default": () => (Logo)
+});
+/* import */ var react_jsx_dev_runtime__rspack_import_0 = __webpack_require__("./node_modules/react/jsx-dev-runtime.js");
+/* import */ var react__rspack_import_1 = __webpack_require__("./node_modules/react/index.js");
+/* import */ var react__rspack_import_1_default = /*#__PURE__*/__webpack_require__.n(react__rspack_import_1);
+/* import */ var _util_utils__rspack_import_2 = __webpack_require__("./src/util/utils.ts");
+/* import */ var _logo_module_css__rspack_import_3 = __webpack_require__("./src/components/logo/logo.module.css");
+
+
+
+
+function Logo(param) {
+    var className = param.className;
+    return /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("svg", {
+        className: (0,_util_utils__rspack_import_2.classNames)(className, _logo_module_css__rspack_import_3.logo),
+        xmlns: "http://www.w3.org/2000/svg",
+        height: "2em",
+        width: "2em",
+        version: "1.1",
+        xmlnsXlink: "http://www.w3.org/1999/xlink",
+        viewBox: "0 0 64 64",
+        preserveAspectRatio: "xMidYMid",
+        children: [
+            /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("title", {
+                children: "Trail-Passion"
+            }, void 0, false, {
+                fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/logo/logo.tsx",
+                lineNumber: 23,
+                columnNumber: 4
+            }, this),
+            /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("g", {
+                stroke: "none",
+                children: [
+                    /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("path", {
+                        d: "m64.2 32a32.1 32 0 1 1 -64.2 0 32.1 32 0 1 1 64.2 0z",
+                        fill: "none",
+                        stroke: "#0004",
+                        "stroke-width": "1"
+                    }, void 0, false, {
+                        fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/logo/logo.tsx",
+                        lineNumber: 25,
+                        columnNumber: 5
+                    }, this),
+                    /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("g", {
+                        fill: "currentColor",
+                        stroke: "none",
+                        children: [
+                            /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("path", {
+                                d: "m61.6 14.8c-4.15-2.7-19.1 4.56-24 4.89-7.89 0.526-25.3 0.57-23 15.1 3.91-6.03 8.89-10.8 19.4-11.9-1.22 4.98-12.3 9.83-12.3 11.8 0 2.52 5.54 2.38 7.08 1.22 4.14-3.12 7-8.55 9.36-12.7 5.62-1.22 8.94-0.688 13.8 0.651 2.11-3.88 3.41-6.9 9.69-9.04z"
+                            }, void 0, false, {
+                                fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/logo/logo.tsx",
+                                lineNumber: 32,
+                                columnNumber: 6
+                            }, this),
+                            /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("path", {
+                                d: "m35.9 30.3c-7.6 8.9-24.5 20.4-32.6 23.2 3.47 2.1 4.98 2.4 9.2 1.8 7.3-1.1 17.3-15.9 21.7-19.6 9.61-0.489 9.19 0.966 9.12 2.93-0.196 5.45-7.25 2.36-11.7 2.36-0.326 5.05-5.62 4.72-5.62 7.9 1.95-0.896 5.94-2.24 9.04-2.61 7.06-0.821 12.6-1.55 12.7-7.49 0.163-7.82-8.03-6.16-11.1-6.35-1.3-0.0814-0.0814-1.22-0.733-2.2z"
+                            }, void 0, false, {
+                                fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/logo/logo.tsx",
+                                lineNumber: 33,
+                                columnNumber: 6
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/logo/logo.tsx",
+                        lineNumber: 31,
+                        columnNumber: 5
+                    }, this),
+                    /*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)("path", {
+                        fill: "currentColor",
+                        d: "m43.8 9.45c-3.96-2.03-11.9 4.4-6.92 7.74 4.97 3.34 11.8-5.24 6.92-7.74z"
+                    }, void 0, false, {
+                        fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/logo/logo.tsx",
+                        lineNumber: 35,
+                        columnNumber: 5
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/logo/logo.tsx",
+                lineNumber: 24,
+                columnNumber: 4
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/components/logo/logo.tsx",
+        lineNumber: 13,
+        columnNumber: 3
+    }, this);
+}
+
+
+},
+"./src/dom.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  dom: () => (dom),
   getWhenExist: () => (getWhenExist)
 });
+/* import */ var _tolokoban_type_guards__rspack_import_0 = __webpack_require__("./node_modules/@tolokoban/type-guards/dist/index.js");
+
 function getWhenExist(selector) {
     return new Promise(function(resolve, reject) {
         var elem = document.querySelector(selector);
@@ -30890,18 +31507,543 @@ function getWhenExist(selector) {
         }, 300);
     });
 }
+function dom(tagName) {
+    for(var _len = arguments.length, children = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++){
+        children[_key - 1] = arguments[_key];
+    }
+    var elem = document.createElement(tagName);
+    var _iteratorNormalCompletion = true, _didIteratorError = false, _iteratorError = undefined;
+    try {
+        for(var _iterator = children[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true){
+            var child = _step.value;
+            if ((0,_tolokoban_type_guards__rspack_import_0.isString)(child)) {
+                elem.textContent += child;
+            } else if (Array.isArray(child)) {
+                var _iteratorNormalCompletion1 = true, _didIteratorError1 = false, _iteratorError1 = undefined;
+                try {
+                    for(var _iterator1 = child[Symbol.iterator](), _step1; !(_iteratorNormalCompletion1 = (_step1 = _iterator1.next()).done); _iteratorNormalCompletion1 = true){
+                        var item = _step1.value;
+                        elem.appendChild(item);
+                    }
+                } catch (err) {
+                    _didIteratorError1 = true;
+                    _iteratorError1 = err;
+                } finally{
+                    try {
+                        if (!_iteratorNormalCompletion1 && _iterator1.return != null) {
+                            _iterator1.return();
+                        }
+                    } finally{
+                        if (_didIteratorError1) {
+                            throw _iteratorError1;
+                        }
+                    }
+                }
+            } else {
+                console.log('🐞 [dom@26] tagName, child =', tagName, child); // @FIXME: Remove this line written on 2026-05-05 at 10:49
+                var _iteratorNormalCompletion2 = true, _didIteratorError2 = false, _iteratorError2 = undefined;
+                try {
+                    for(var _iterator2 = Object.keys(child)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true){
+                        var key = _step2.value;
+                        var val = child[key];
+                        console.log('🐞 [dom@28] key, val =', key, val); // @FIXME: Remove this line written on 2026-05-05 at 10:49
+                        elem.setAttribute(key, val);
+                    }
+                } catch (err) {
+                    _didIteratorError2 = true;
+                    _iteratorError2 = err;
+                } finally{
+                    try {
+                        if (!_iteratorNormalCompletion2 && _iterator2.return != null) {
+                            _iterator2.return();
+                        }
+                    } finally{
+                        if (_didIteratorError2) {
+                            throw _iteratorError2;
+                        }
+                    }
+                }
+            }
+        }
+    } catch (err) {
+        _didIteratorError = true;
+        _iteratorError = err;
+    } finally{
+        try {
+            if (!_iteratorNormalCompletion && _iterator.return != null) {
+                _iterator.return();
+            }
+        } finally{
+            if (_didIteratorError) {
+                throw _iteratorError;
+            }
+        }
+    }
+    return elem;
+}
 
 
 },
-"./src/services/garmin.ts"() {
-throw new Error("  \u001b[31m×\u001b[0m Module build failed \u001b[2m(from builtin:swc-loader)\u001b[0m:\n\u001b[2m  ├─▶ \u001b[0m  \u001b[31m×\u001b[0m   \u001b[31m×\u001b[0m Expected a semicolon\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m     ╭─[\u001b[36;1;4m/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/services/garmin.ts:25:1\u001b[0m]\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m  \u001b[2m22\u001b[0m │             const url = `/gc-api/download-service/export/tcx/activity/${id}`\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m  \u001b[2m23\u001b[0m │\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m  \u001b[2m24\u001b[0m │         }\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m  \u001b[2m25\u001b[0m │     }\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m     · \u001b[35;1m    ▲\u001b[0m\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m  \u001b[2m26\u001b[0m │\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m  \u001b[2m27\u001b[0m │     async fetch(url: string, params: Record<string, string> = {}) {\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m  \u001b[2m28\u001b[0m │         try {\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m     ╰────\n\u001b[2m  │   \u001b[0m  \u001b[2m│\u001b[0m\n\u001b[2m  │   \u001b[0m\n\u001b[2m  ╰─▶ \u001b[0m  \u001b[31m×\u001b[0m Syntax Error\n      \n");
+"./src/log.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  Console: () => (Console)
+});
+/* import */ var _tolokoban_type_guards__rspack_import_0 = __webpack_require__("./node_modules/@tolokoban/type-guards/dist/index.js");
+
+var STYLE = "font-family:monospace;background:#000;color:#9dc";
+var Console = {
+    log: function log() {
+        for(var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++){
+            args[_key] = arguments[_key];
+        }
+        console.log("%c".concat(args.map(function(item) {
+            if ((0,_tolokoban_type_guards__rspack_import_0.isString)(item)) return item;
+            if ((0,_tolokoban_type_guards__rspack_import_0.isNumber)(item)) return "".concat(item);
+            return JSON.stringify(item, null, 4);
+        })), STYLE);
+    }
+};
+
+
+},
+"./src/services/garmin.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  ServiceGarmin: () => (ServiceGarmin)
+});
+/* import */ var _types__rspack_import_0 = __webpack_require__("./src/types/index.ts");
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
+    try {
+        var info = gen[key](arg);
+        var value = info.value;
+    } catch (error) {
+        reject(error);
+        return;
+    }
+    if (info.done) {
+        resolve(value);
+    } else {
+        Promise.resolve(value).then(_next, _throw);
+    }
+}
+function _async_to_generator(fn) {
+    return function() {
+        var self = this, args = arguments;
+        return new Promise(function(resolve, reject) {
+            var gen = fn.apply(self, args);
+            function _next(value) {
+                asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value);
+            }
+            function _throw(err) {
+                asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err);
+            }
+            _next(undefined);
+        });
+    };
+}
+function _class_call_check(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+        throw new TypeError("Cannot call a class as a function");
+    }
+}
+function _defineProperties(target, props) {
+    for(var i = 0; i < props.length; i++){
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+    }
+}
+function _create_class(Constructor, protoProps, staticProps) {
+    if (protoProps) _defineProperties(Constructor.prototype, protoProps);
+    if (staticProps) _defineProperties(Constructor, staticProps);
+    return Constructor;
+}
+function _ts_generator(thisArg, body) {
+    var f, y, t, _ = {
+        label: 0,
+        sent: function() {
+            if (t[0] & 1) throw t[1];
+            return t[1];
+        },
+        trys: [],
+        ops: []
+    }, g = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype), d = Object.defineProperty;
+    return d(g, "next", {
+        value: verb(0)
+    }), d(g, "throw", {
+        value: verb(1)
+    }), d(g, "return", {
+        value: verb(2)
+    }), typeof Symbol === "function" && d(g, Symbol.iterator, {
+        value: function() {
+            return this;
+        }
+    }), g;
+    function verb(n) {
+        return function(v) {
+            return step([
+                n,
+                v
+            ]);
+        };
+    }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while(g && (g = 0, op[0] && (_ = 0)), _)try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [
+                op[0] & 2,
+                t.value
+            ];
+            switch(op[0]){
+                case 0:
+                case 1:
+                    t = op;
+                    break;
+                case 4:
+                    _.label++;
+                    return {
+                        value: op[1],
+                        done: false
+                    };
+                case 5:
+                    _.label++;
+                    y = op[1];
+                    op = [
+                        0
+                    ];
+                    continue;
+                case 7:
+                    op = _.ops.pop();
+                    _.trys.pop();
+                    continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) {
+                        _ = 0;
+                        continue;
+                    }
+                    if (op[0] === 3 && (!t || op[1] > t[0] && op[1] < t[3])) {
+                        _.label = op[1];
+                        break;
+                    }
+                    if (op[0] === 6 && _.label < t[1]) {
+                        _.label = t[1];
+                        t = op;
+                        break;
+                    }
+                    if (t && _.label < t[2]) {
+                        _.label = t[2];
+                        _.ops.push(op);
+                        break;
+                    }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop();
+                    continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) {
+            op = [
+                6,
+                e
+            ];
+            y = 0;
+        } finally{
+            f = t = 0;
+        }
+        if (op[0] & 5) throw op[1];
+        return {
+            value: op[0] ? op[1] : void 0,
+            done: true
+        };
+    }
+}
+
+var ServiceGarminClass = /*#__PURE__*/ function() {
+    "use strict";
+    function ServiceGarminClass() {
+        _class_call_check(this, ServiceGarminClass);
+    }
+    _create_class(ServiceGarminClass, [
+        {
+            key: "getActivities",
+            value: function getActivities() {
+                var start = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : 0, limit = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : 20;
+                return _async_to_generator(function() {
+                    var url, activities, error;
+                    return _ts_generator(this, function(_state) {
+                        switch(_state.label){
+                            case 0:
+                                _state.trys.push([
+                                    0,
+                                    2,
+                                    ,
+                                    3
+                                ]);
+                                url = "https://connect.garmin.com/gc-api/activitylist-service/activities/search/activities";
+                                return [
+                                    4,
+                                    this.getJson(url, {
+                                        limit: "".concat(limit),
+                                        start: "".concat(start)
+                                    })
+                                ];
+                            case 1:
+                                activities = _state.sent();
+                                console.log('🐞 [garmin@8] activities =', activities); // @FIXME: Remove this line written on 2026-05-05 at 10:10
+                                (0,_types__rspack_import_0.assertGarminActivitySummaryArray)(activities);
+                                return [
+                                    2,
+                                    activities
+                                ];
+                            case 2:
+                                error = _state.sent();
+                                console.error("Error while fetching activities:", error);
+                                throw new Error("Failed to fetch activities!");
+                            case 3:
+                                return [
+                                    2
+                                ];
+                        }
+                    });
+                }).call(this);
+            }
+        },
+        {
+            key: "getActivity",
+            value: function getActivity(id) {
+                return _async_to_generator(function() {
+                    var url;
+                    return _ts_generator(this, function(_state) {
+                        try {
+                            url = "https://connect.garmin.com/gc-api/activity-service/activity/".concat(id);
+                            return [
+                                2,
+                                this.getJson(url)
+                            ];
+                        } catch (error) {
+                            console.error("Error while fetching activity #".concat(id, ":"), error);
+                        }
+                        return [
+                            2
+                        ];
+                    });
+                }).call(this);
+            }
+        },
+        {
+            key: "getJson",
+            value: // async getActivityTCX(id: number) {
+            //     try {
+            //         const url = `/gc-api/download-service/export/tcx/activity/${id}`
+            //     }
+            // }
+            function getJson(_0) {
+                return _async_to_generator(function(url) {
+                    var params, text, json;
+                    var _arguments = arguments;
+                    return _ts_generator(this, function(_state) {
+                        switch(_state.label){
+                            case 0:
+                                params = _arguments.length > 1 && _arguments[1] !== void 0 ? _arguments[1] : {};
+                                return [
+                                    4,
+                                    this.getText(url, params)
+                                ];
+                            case 1:
+                                text = _state.sent();
+                                json = JSON.parse(text);
+                                return [
+                                    2,
+                                    json
+                                ];
+                        }
+                    });
+                }).apply(this, arguments);
+            }
+        },
+        {
+            key: "getText",
+            value: function getText(_0) {
+                return _async_to_generator(function(url) {
+                    var params, token, options, resp, text, error;
+                    var _arguments = arguments;
+                    return _ts_generator(this, function(_state) {
+                        switch(_state.label){
+                            case 0:
+                                params = _arguments.length > 1 && _arguments[1] !== void 0 ? _arguments[1] : {};
+                                _state.label = 1;
+                            case 1:
+                                _state.trys.push([
+                                    1,
+                                    4,
+                                    ,
+                                    5
+                                ]);
+                                token = this.getToken();
+                                options = cloneInto({
+                                    headers: {
+                                        "Connect-Csrf-Token": token
+                                    }
+                                }, window.wrappedJSObject);
+                                return [
+                                    4,
+                                    window.wrappedJSObject.fetch("".concat(url, "?").concat(new URLSearchParams(params)), options)
+                                ];
+                            case 2:
+                                resp = _state.sent();
+                                return [
+                                    4,
+                                    resp.text()
+                                ];
+                            case 3:
+                                text = _state.sent();
+                                return [
+                                    2,
+                                    text
+                                ];
+                            case 4:
+                                error = _state.sent();
+                                console.error('Error while fetching "'.concat(url, '":'), error);
+                                throw new Error('Failed to fetch text from "'.concat(url, '"!'));
+                            case 5:
+                                return [
+                                    2
+                                ];
+                        }
+                    });
+                }).apply(this, arguments);
+            }
+        },
+        {
+            key: "getToken",
+            value: function getToken() {
+                try {
+                    var _document_querySelector;
+                    var token = (_document_querySelector = document.querySelector('meta[name="csrf-token"]')) === null || _document_querySelector === void 0 ? void 0 : _document_querySelector.getAttribute("content");
+                    console.log('🐞 [garmin@28] token =', token); // @FIXME: Remove this line written on 2026-05-04 at 19:25
+                    if (!token) throw new Error("CSRF token not found!");
+                    return token;
+                } catch (error) {
+                    console.error("Error while getting token", error);
+                }
+            }
+        }
+    ]);
+    return ServiceGarminClass;
+}();
+var ServiceGarmin = new ServiceGarminClass();
+
+
+},
+"./src/types/garmin.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  assertGarminActivitySummary: () => (assertGarminActivitySummary),
+  assertGarminActivitySummaryArray: () => (assertGarminActivitySummaryArray)
+});
+/* import */ var _tolokoban_type_guards__rspack_import_0 = __webpack_require__("./node_modules/@tolokoban/type-guards/dist/index.js");
+
+function assertGarminActivitySummary(data) {
+    return (0,_tolokoban_type_guards__rspack_import_0.assertType)(data, {
+        activityId: "number",
+        activityName: "string",
+        activityType: {
+            typeId: "number",
+            typeKey: "string",
+            parentTypeId: "number"
+        },
+        beginTimestamp: "number",
+        deviceId: "number",
+        distance: "number",
+        duration: "number",
+        elevationGain: "number",
+        elevationLoss: "number",
+        endLatitude: "number",
+        endLongitude: "number",
+        locationName: "string",
+        startLatitude: "number",
+        startLongitude: "number"
+    });
+}
+function assertGarminActivitySummaryArray(data) {
+    return (0,_tolokoban_type_guards__rspack_import_0.assertType)(data, [
+        "array",
+        {
+            activityId: "number",
+            activityName: "string",
+            activityType: {
+                typeId: "number",
+                typeKey: "string",
+                parentTypeId: "number"
+            },
+            beginTimestamp: "number",
+            deviceId: "number",
+            distance: "number",
+            duration: "number",
+            elevationGain: "number",
+            elevationLoss: "number",
+            endLatitude: "number",
+            endLongitude: "number",
+            locationName: "string",
+            startLatitude: "number",
+            startLongitude: "number"
+        }
+    ]);
+}
+
+
+},
+"./src/types/index.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  assertGarminActivitySummary: () => (/* reexport safe */ _garmin__rspack_import_0.assertGarminActivitySummary),
+  assertGarminActivitySummaryArray: () => (/* reexport safe */ _garmin__rspack_import_0.assertGarminActivitySummaryArray)
+});
+/* import */ var _garmin__rspack_import_0 = __webpack_require__("./src/types/garmin.ts");
+
+
+
+},
+"./src/util/utils.ts"(__unused_rspack_module, __webpack_exports__, __webpack_require__) {
+__webpack_require__.r(__webpack_exports__);
+__webpack_require__.d(__webpack_exports__, {
+  classNames: () => (classNames)
+});
+/* import */ var _tolokoban_type_guards__rspack_import_0 = __webpack_require__("./node_modules/@tolokoban/type-guards/dist/index.js");
+
+function classNames() {
+    for(var _len = arguments.length, classes = new Array(_len), _key = 0; _key < _len; _key++){
+        classes[_key] = arguments[_key];
+    }
+    return classes.filter(_tolokoban_type_guards__rspack_import_0.isString).join(" ");
+}
 
 
 },
 "./src/components/add-on/add-on.module.css"(module, __unused_rspack_exports, __webpack_require__) {
-"use strict";
 var exports = {
   "addOn": "_src_components_add-on_add-on_module_css-addOn",
+};
+
+__webpack_require__.r(module.exports = exports);
+
+
+},
+"./src/components/dialog-trail-passion/dialog-trail-passion.module.css"(module, __unused_rspack_exports, __webpack_require__) {
+var exports = {
+  "dialogTrailPassion": "_src_components_dialog-trail-passion_dialog-trail-passion_module_css-dialogTrailPassion",
+};
+
+__webpack_require__.r(module.exports = exports);
+
+
+},
+"./src/components/logo/logo.module.css"(module, __unused_rspack_exports, __webpack_require__) {
+var exports = {
+  "logo": "_src_components_logo_logo_module_css-logo",
 };
 
 __webpack_require__.r(module.exports = exports);
@@ -30933,6 +32075,18 @@ return module.exports;
 
 }
 
+// webpack/runtime/compat_get_default_export
+(() => {
+// getDefaultExport function for compatibility with non-ESM modules
+__webpack_require__.n = (module) => {
+	var getter = module && module.__esModule ?
+		() => (module['default']) :
+		() => (module);
+	__webpack_require__.d(getter, { a: getter });
+	return getter;
+};
+
+})();
 // webpack/runtime/define_property_getters
 (() => {
 __webpack_require__.d = (exports, definition) => {
@@ -30966,14 +32120,14 @@ __webpack_require__.nmd = (module) => {
 };
 })();
 var __webpack_exports__ = {};
-// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
+// This entry needs to be wrapped in an IIFE because it needs to be isolated against other modules in the chunk.
 (() => {
-"use strict";
 __webpack_require__.r(__webpack_exports__);
 /* import */ var react_jsx_dev_runtime__rspack_import_0 = __webpack_require__("./node_modules/react/jsx-dev-runtime.js");
 /* import */ var react_dom_client__rspack_import_1 = __webpack_require__("./node_modules/react-dom/client.js");
 /* import */ var _components_add_on__rspack_import_2 = __webpack_require__("./src/components/add-on/index.ts");
 /* import */ var _dom__rspack_import_3 = __webpack_require__("./src/dom.ts");
+/* import */ var _log__rspack_import_4 = __webpack_require__("./src/log.ts");
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) {
     try {
         var info = gen[key](arg);
@@ -31002,6 +32156,14 @@ function _async_to_generator(fn) {
             _next(undefined);
         });
     };
+}
+function _instanceof(left, right) {
+    "@swc/helpers - instanceof";
+    if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) {
+        return !!right[Symbol.hasInstance](left);
+    } else {
+        return left instanceof right;
+    }
 }
 function _ts_generator(thisArg, body) {
     var f, y, t, _ = {
@@ -31106,28 +32268,38 @@ function _ts_generator(thisArg, body) {
 
 
 
+
 function start() {
     return _async_to_generator(function() {
-        var container, header, body, root;
+        var firstLI, firstUL, tp, _tp_parentNode, li, root;
         return _ts_generator(this, function(_state) {
             switch(_state.label){
                 case 0:
-                    console.log("Garmin Trail-Passion content script loaded on activities page");
+                    _log__rspack_import_4.Console.log("Garmin Trail-Passion Add-on loaded!");
                     return [
                         4,
-                        (0,_dom__rspack_import_3.getWhenExist)("#pageContainer")
+                        (0,_dom__rspack_import_3.getWhenExist)("div.connect-container > nav.main-nav > div > div > ul > li")
                     ];
                 case 1:
-                    container = _state.sent();
-                    header = container.querySelector("div");
-                    if (!header) throw new Error("Div #pageContainer is empty!");
-                    body = document.createElement("span");
-                    header.appendChild(body);
-                    root = (0,react_dom_client__rspack_import_1.createRoot)(body);
+                    firstLI = _state.sent();
+                    if (!firstLI) throw new Error("Cannot find navigation bar!");
+                    firstUL = firstLI.parentElement;
+                    if (!firstUL) throw new Error("Cannot find containing UL!");
+                    tp = document.body.querySelector("#trail-passion");
+                    if (tp) {
+                        ;
+                        (_tp_parentNode = tp.parentNode) === null || _tp_parentNode === void 0 ? void 0 : _tp_parentNode.removeChild(tp);
+                    }
+                    li = (0,_dom__rspack_import_3.dom)("li", {
+                        id: "trail-passion",
+                        class: firstLI.className
+                    });
+                    firstUL.appendChild(li);
+                    root = (0,react_dom_client__rspack_import_1.createRoot)(li);
                     root.render(/*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)(_components_add_on__rspack_import_2.AddOn, {}, void 0, false, {
                         fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/content.tsx",
-                        lineNumber: 15,
-                        columnNumber: 17
+                        lineNumber: 27,
+                        columnNumber: 14
                     }, this));
                     return [
                         2
@@ -31137,6 +32309,46 @@ function start() {
     }).call(this);
 }
 start();
+function backup_start() {
+    return _async_to_generator(function() {
+        var container, tp, _tp_parentNode, body, root;
+        return _ts_generator(this, function(_state) {
+            switch(_state.label){
+                case 0:
+                    _log__rspack_import_4.Console.log("Garmin Trail-Passion Add-on loaded!");
+                    return [
+                        4,
+                        (0,_dom__rspack_import_3.getWhenExist)("#searchAndFilterContainer")
+                    ];
+                case 1:
+                    container = _state.sent();
+                    if (!container) throw new Error("Div #searchAndFilterContainer is empty!");
+                    tp = container.querySelector("#trail-passion");
+                    if (tp) {
+                        ;
+                        (_tp_parentNode = tp.parentNode) === null || _tp_parentNode === void 0 ? void 0 : _tp_parentNode.removeChild(tp);
+                    }
+                    body = document.createElement("div");
+                    body.setAttribute("id", "trail-passion");
+                    body.style.gridArea = "trail-passion";
+                    container.appendChild(body);
+                    if (_instanceof(container, HTMLDivElement)) {
+                        container.style.gridTemplateColumns = "auto 1fr auto";
+                        container.style.gridTemplateAreas = "'search activityTypesFilter trail-passion' 'activitySubTypesFilter activitySubTypesFilter trail-passion'";
+                    }
+                    root = (0,react_dom_client__rspack_import_1.createRoot)(body);
+                    root.render(/*#__PURE__*/ (0,react_jsx_dev_runtime__rspack_import_0.jsxDEV)(_components_add_on__rspack_import_2.AddOn, {}, void 0, false, {
+                        fileName: "/Users/tolokoban/Code/github/firefox/firefox-addon-garmin/src/content.tsx",
+                        lineNumber: 51,
+                        columnNumber: 14
+                    }, this));
+                    return [
+                        2
+                    ];
+            }
+        });
+    }).call(this);
+}
 
 })();
 
